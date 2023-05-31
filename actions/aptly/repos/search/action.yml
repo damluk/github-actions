@@ -1,0 +1,38 @@
+name: 'GET /api/repos/:name/packages'
+
+inputs:
+  api_url:
+    type: string
+    required: true
+  basic_auth_user:
+    type: string
+    required: false
+  basic_auth_pass:
+    type: string
+    required: false
+  name:
+    type: string
+    required: true
+  q:
+    type: string
+  withDeps:
+    type: string
+  format:
+    type: string
+
+outputs:
+  response:
+    value: ${{ steps.curl.outputs.response }}
+
+runs:
+  using: composite
+  steps:
+    - id: curl
+      shell: perl {0}
+      env:
+        GITHUB_INPUTS: ${{ toJSON(inputs) }}
+      run: |
+        use File::Basename;
+        use lib sprintf('%s/../../../lib', dirname($ENV{GITHUB_ACTION_PATH}));
+        use GithubAptlyAction;
+        GithubAptlyAction::Repos::search;

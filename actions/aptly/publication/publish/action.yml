@@ -1,0 +1,78 @@
+name: 'POST /api/publish[/:prefix]'
+
+inputs:
+  api_url:
+    type: string
+    required: true
+  basic_auth_user:
+    type: string
+    required: false
+  basic_auth_pass:
+    type: string
+    required: false
+  allow_failure:
+    type: boolean
+    default: false
+  prefix:
+    type: string
+    required: false
+  SourceKind:
+    type: string
+    required: true
+  Sources:
+    type: string
+    required: true
+    comment: >
+      JSON list of Component/Name objects, Name is either local repository or
+      snapshot name
+  Distribution:
+    type: string
+  Label:
+    type: string
+  Origin:
+    type: string
+  ForceOverwrite:
+    type: boolean
+  Architectures:
+    type: string
+    comment: >
+      JSON list of published architectures
+  SigningSkip:
+    type: boolean
+  SigningBatch:
+    type: boolean
+  SigningGpgKey:
+    type: string
+  SigningKeyring:
+    type: string
+  SigningSecretKeyring:
+    type: string
+  SigningPassphrase:
+    type: string
+  SigningPassphraseFile:
+    type: string
+  NotAutomatic:
+    type: string
+  ButAutomaticUpgrades:
+    type: string
+  SkipCleanup:
+    type: boolean
+  AcquireByHash:
+    type: boolean
+
+outputs:
+  response:
+    value: ${{ steps.curl.outputs.response }}
+
+runs:
+  using: composite
+  steps:
+    - id: curl
+      env:
+        GITHUB_INPUTS: ${{ toJSON(inputs) }}
+      shell: perl {0}
+      run: |
+        use File::Basename;
+        use lib sprintf('%s/../../../lib', dirname($ENV{GITHUB_ACTION_PATH}));
+        use GithubAptlyAction;
+        GithubAptlyAction::Publication::publish;
